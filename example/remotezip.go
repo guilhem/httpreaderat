@@ -1,18 +1,17 @@
-//
 // This example outputs a single file from a remote zip file without
 // downloading the whole archive. If the server does not support HTTP Range
 // Requests, the whole file is downloaded to a backing store as a fallback.
-//
 package main
 
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/avvmoto/buf-readerat"
-	"github.com/snabb/httpreaderat"
 	"io"
 	"net/http"
 	"os"
+
+	bufra "github.com/avvmoto/buf-readerat"
+	"github.com/guilhem/httpreaderat"
 )
 
 func catZipFile(url, fileName string) (err error) {
