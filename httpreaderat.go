@@ -14,7 +14,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/snabb/httpreaderat/pkg/contentrange"
+	"github.com/guilhem/httpreaderat/pkg/contentrange"
 )
 
 // HTTPReaderAt is io.ReaderAt implementation that makes HTTP Range Requests.

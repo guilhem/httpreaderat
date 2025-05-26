@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/snabb/httpreaderat/pkg/contentrange"
+	"github.com/guilhem/httpreaderat/pkg/contentrange"
 )
 
 func TestParse(t *testing.T) {

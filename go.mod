@@ -1,4 +1,4 @@
-module github.com/snabb/httpreaderat
+module github.com/guilhem/httpreaderat
 
 go 1.18
 

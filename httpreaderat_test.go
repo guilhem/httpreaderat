@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/snabb/httpreaderat"
+	"github.com/guilhem/httpreaderat"
 	"github.com/stretchr/testify/suite"
 )
 
