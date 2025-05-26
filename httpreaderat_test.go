@@ -55,7 +55,7 @@ func (ra *readerAtFixture) TestNonGetRequestMethod() {
 	ra.Nil(reader)
 }
 
-func (ra *readerAtFixture) TestRangeSupportIntial() {
+func (ra *readerAtFixture) TestRangeSupportInitial() {
 	ra.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rnge := r.Header.Get("Range")
 		ra.Equal(rnge, "bytes=0-0")
