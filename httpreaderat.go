@@ -188,7 +188,7 @@ func (ra *HTTPReaderAt) readAt(p []byte, off int64, initialize bool) (int, error
 		if errors.Is(err, io.ErrUnexpectedEOF) {
 			err = io.EOF
 		}
-		return 0, err
+		return n, err
 	}
 
 	if (err == nil || err == io.EOF) && int64(n) != resp.ContentLength {
