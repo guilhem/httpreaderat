@@ -41,7 +41,7 @@ func Parse(str string) (first, last, length int64, err error) {
 		}
 		last, err := strconv.ParseInt(fields[2], 10, 64)
 		if err != nil {
-			return 0, 0, 0, fmt.Errorf("can't parse first: %w", err)
+			return 0, 0, 0, fmt.Errorf("can't parse last: %w", err)
 		}
 		length := int64(-1)
 		if fields[3] != "*" {
