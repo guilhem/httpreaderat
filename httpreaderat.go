@@ -87,7 +87,7 @@ func (ra *HTTPReaderAt) Size() int64 {
 // error is io.EOF. It is safe for concurrent use.
 //
 // It tries to notice if the file changes by tracking the size as well as
-// Content-Type, Last-Modified and ETag headers between consecutive ReadAt
+// Last-Modified and ETag headers between consecutive ReadAt
 // calls. In case any change is detected, ErrValidationFailed is returned.
 func (ra *HTTPReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
 	return ra.readAt(p, off, false)
@@ -188,7 +188,7 @@ func (ra *HTTPReaderAt) readAt(p []byte, off int64, initialize bool) (int, error
 		if errors.Is(err, io.ErrUnexpectedEOF) {
 			err = io.EOF
 		}
-		return 0, err
+		return n, err
 	}
 
 	if (err == nil || err == io.EOF) && int64(n) != resp.ContentLength {
@@ -201,21 +201,14 @@ func (ra *HTTPReaderAt) readAt(p []byte, off int64, initialize bool) (int, error
 	return n, err
 }
 
-func cloneHeader(h http.Header) http.Header {
-	h2 := make(http.Header, len(h))
-	for k, vv := range h {
-		vv2 := make([]string, len(vv))
-		copy(vv2, vv)
-		h2[k] = vv2
-	}
-	return h2
-}
-
 func (ra *HTTPReaderAt) copyReq() *http.Request {
 	out := *ra.req
 	out.Body = nil
 	out.ContentLength = 0
-	out.Header = cloneHeader(ra.req.Header)
+	out.Header = ra.req.Header.Clone()
+	if out.Header == nil {
+		out.Header = make(http.Header)
+	}
 
 	return &out
 }

@@ -2,6 +2,7 @@ package httpreaderat_test
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,6 +33,40 @@ func (ra *readerAtFixture) reader() (*httpreaderat.HTTPReaderAt, error) {
 
 func TestReaderAtFixture(t *testing.T) {
 	suite.Run(t, new(readerAtFixture))
+}
+
+func TestReadAtTruncatedResponse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Range") == "bytes=0-0" {
+			w.Header().Set("Content-Range", "bytes 0-0/4")
+			w.Header().Set("Content-Length", "1")
+			w.WriteHeader(http.StatusPartialContent)
+			w.Write([]byte("a"))
+			return
+		}
+		w.Header().Set("Content-Range", "bytes 0-3/4")
+		w.Header().Set("Content-Length", "4")
+		w.WriteHeader(http.StatusPartialContent)
+		w.Write([]byte("ab"))
+	}))
+	defer server.Close()
+	req, err := http.NewRequest(http.MethodGet, server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header = nil // A request prototype may have no headers.
+	reader, err := httpreaderat.New(server.Client(), req, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	buf := make([]byte, 4)
+	n, err := reader.ReadAt(buf, 0)
+	if n != 2 || string(buf[:n]) != "ab" || !errors.Is(err, io.EOF) {
+		t.Fatalf("ReadAt = (%d, %v), data %q; want (2, EOF), ab", n, err, buf[:n])
+	}
+	if req.Header != nil {
+		t.Fatal("ReadAt changed the request prototype headers")
+	}
 }
 
 func (ra *readerAtFixture) TestRangeNotSupported() {

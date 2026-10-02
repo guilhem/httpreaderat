@@ -1,12 +1,24 @@
 package contentrange_test
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"testing"
 
 	"github.com/guilhem/httpreaderat/pkg/contentrange"
 )
+
+func TestParseEmpty(t *testing.T) {
+	for _, input := range []string{"", " \t\r\n", "-/"} {
+		t.Run(input, func(t *testing.T) {
+			first, last, length, err := contentrange.Parse(input)
+			if first != -1 || last != -1 || length != -1 || !errors.Is(err, contentrange.ErrParse) {
+				t.Fatalf("Parse(%q) = (%d, %d, %d, %v); want (-1, -1, -1, ErrParse)", input, first, last, length, err)
+			}
+		})
+	}
+}
 
 func TestParse(t *testing.T) {
 	type args struct {
