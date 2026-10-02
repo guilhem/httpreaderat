@@ -1,6 +1,6 @@
 module github.com/guilhem/httpreaderat
 
-go 1.18
+go 1.26.0
 
 require github.com/stretchr/testify v1.10.0
 

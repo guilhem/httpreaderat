@@ -9,30 +9,31 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
-	bufra "github.com/avvmoto/buf-readerat"
 	"github.com/guilhem/httpreaderat"
 )
 
 func catZipFile(url, fileName string) (err error) {
 	// create http.Request
-	req, _ := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
 
 	// a backing store in case the server does not support range requests
 	bs := httpreaderat.NewDefaultStore()
 	defer bs.Close()
 
 	// make a HTTPReaderAt client
-	htrdr, err := httpreaderat.New(nil, req, bs)
+	client := &http.Client{Timeout: 30 * time.Second}
+	htrdr, err := httpreaderat.New(client, req, bs)
 	if err != nil {
 		return err
 	}
 
-	// make it buffered
-	bhtrdr := bufra.NewBufReaderAt(htrdr, 1024*1024)
-
 	// make a ZIP file reader
-	zrdr, err := zip.NewReader(bhtrdr, htrdr.Size())
+	zrdr, err := zip.NewReader(htrdr, htrdr.Size())
 	if err != nil {
 		return err
 	}
@@ -43,20 +44,23 @@ func catZipFile(url, fileName string) (err error) {
 			if err != nil {
 				return err
 			}
-			io.Copy(os.Stdout, fr)
-			fr.Close()
-			return nil
+			defer fr.Close()
+			_, err = io.Copy(os.Stdout, fr)
+			return err
 		}
 	}
 	return os.ErrNotExist
 }
 
 func main() {
-	err := catZipFile(
-		"https://dl.google.com/go/go1.12.windows-amd64.zip",
-		"go/LICENSE")
+	if len(os.Args) != 3 {
+		fmt.Fprintln(os.Stderr, "usage: remotezip <archive-url> <file-name>")
+		os.Exit(1)
+	}
+	err := catZipFile(os.Args[1], os.Args[2])
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

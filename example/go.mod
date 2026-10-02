@@ -1,10 +1,7 @@
 module example.com
 
-go 1.18
+go 1.26.0
 
-require (
-	github.com/avvmoto/buf-readerat v0.0.0-20171115124131-a17c8cb89270
-	github.com/guilhem/httpreaderat v1.0.1
-)
+require github.com/guilhem/httpreaderat v1.0.1
 
-require github.com/pkg/errors v0.8.1 // indirect
+replace github.com/guilhem/httpreaderat => ..

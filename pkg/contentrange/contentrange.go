@@ -29,6 +29,9 @@ func Parse(str string) (first, last, length int64, err error) {
 	}
 
 	fields := strings.FieldsFunc(str, split)
+	if len(fields) == 0 {
+		return -1, -1, -1, ErrParse
+	}
 
 	if fields[0] != "bytes" {
 		return -1, -1, -1, ErrUnsupportedUnit
